@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: php
+      MARIADB_USER: kobe
+      MARIADB_PASSWORD: denshi
+      TZ: Asia/Tokyo
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./sql/:/docker-entrypoint-initdb.d/
+  phpmyadmin:
+    image: phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+    volumes:
+      - phpmyadmin-data:/sessions
+  php:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+
+  selenium-chrome:
+    build: ./selenium
+    ports:
+      - 4444:4444
+      - 5900:5900
+volumes:
+  db-data:
+  phpmyadmin-data:
